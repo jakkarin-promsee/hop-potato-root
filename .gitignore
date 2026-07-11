@@ -1,0 +1,38 @@
+# --- Nested product repos (each has its own git history) ---
+client/
+server/
+
+# --- Scratch / reference (not the product) ---
+example_copy/
+example_project/
+test/
+Ptest/
+temp/
+
+# --- Secrets & local env ---
+.env
+.env.*
+!.env.example
+
+# --- Dependencies & build output (if ever added at workspace root) ---
+node_modules/
+dist/
+build/
+
+# --- OS & editor noise ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# --- Agent tooling (machine-local; not shared) ---
+.claude/
+.playwright-mcp/
+
+# --- graphify: commit slim outputs only (graph.json, report, viz) ---
+graphify-out/cache/
+graphify-out/cost.json
+graphify-out/.graphify_*
+graphify-out/20*/

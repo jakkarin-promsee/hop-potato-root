@@ -1,0 +1,22 @@
+---
+description: Hot Potato server — Express API, auth, data model, Gemini AI integration
+globs: server/**/*
+alwaysApply: false
+---
+
+# Server half (`server/`)
+
+When working in `server/`, read and follow:
+
+@server/CLAUDE.md
+
+Data contract source of truth: `server/src/models/*.model.ts` — **ignore** stale `server/src/models/schema.md`.
+
+## Quick reminders
+
+- Stack: Express 5 + TypeScript + Mongoose (MongoDB) + Google Gemini.
+- Deploy target: Render (free tier — cold-starts are normal).
+- Run tests: `cd server && npm test` (offline, in-memory Mongo, mocked Gemini).
+- Live AI smoke: `cd server && npm run test:ai` with `RUN_AI_TESTS=true` and real `GEMINI_API_KEY`.
+- Git commands only inside `server/` — it is its own repo.
+- **Golden Rule 2:** never add `protect` to AI or public-content read paths; use `optionalAuth` where needed.

@@ -1,0 +1,23 @@
+---
+description: Hot Potato client — React web app conventions, routing, stores, editor
+globs: client/**/*
+alwaysApply: false
+---
+
+# Client half (`client/`)
+
+When working in `client/`, read and follow:
+
+@client/CLAUDE.md
+
+For TipTap/Fabric editor internals, also read:
+
+@client/src/components/README.md
+
+## Quick reminders
+
+- Stack: React 19 + TypeScript + Vite + Tailwind v4 + shadcn/ui + Zustand.
+- API calls via `client/src/lib/axios.ts` (`VITE_API_URL`, JWT Bearer on every request).
+- Deploy target: Vercel.
+- Run tests: `cd client && npm test` and `cd client && npm run lint`.
+- Git commands only inside `client/` — it is its own repo.

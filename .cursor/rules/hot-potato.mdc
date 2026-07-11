@@ -1,0 +1,130 @@
+---
+description: Hot Potato — root project context, Golden Rules, graphify workflow, git layout, and doc map
+alwaysApply: true
+---
+
+# Hot Potato — project context (always on)
+
+Read these canonical docs before exploring or editing:
+
+@CLAUDE.md
+@AGENT.md
+@ROADMAP.md
+
+For implementation work, execute phases from @ROADMAP.md (launch-readiness v3, Tiers 0 → 6: SEO → observability → performance → settings/profile → CI → launch → deferred). Older roadmaps live in `archive/arc1` and `archive/arc2` — history only, never execute from them.
+
+---
+
+## Golden Rules (non-negotiable — override "best practice")
+
+1. **Never ration tokens for real students.** No per-student quotas, daily limits, message caps, or paywall logic. Rate limiting is bot-only, with generous env-tunable thresholds.
+2. **Anonymous users keep full access.** Reading public content and using the AI never requires login. Logged-out users simply get no persistence. **Never add `protect` to AI or public-content read paths.**
+
+Tutor design: Thai-first; critical thinking > correctness; admire the idea first, never say "wrong"; teacher-authored questions/answers/guidelines drive the agent.
+
+---
+
+## Two halves
+
+| | `client/` | `server/` |
+| --- | --- | --- |
+| Role | Web app (teacher + student UI) | REST API + AI + persistence |
+| Stack | React 19 + TS + Vite + Tailwind v4 + shadcn/ui | Express 5 + TS + Mongoose (MongoDB) |
+| Deploy | Vercel | Render |
+| Deep docs | `client/CLAUDE.md` | `server/CLAUDE.md` |
+| Git repo | Separate repo inside `client/` | Separate repo inside `server/` |
+
+API contract: routes in `server/src/routes/*`, consumed from `client/src/stores/*` and `client/src/lib`/component API helpers. Change both sides when you change an endpoint.
+
+---
+
+## Git — read before any git command
+
+- **Three repos:** `Hot-Potato/` = workspace meta repo (docs, graphify, archive). `client/` and `server/` = separate product repos (gitignored here).
+- Run `git` **in the repo you're changing:** docs/graph → `Hot-Potato/`; app code → `client/` or `server/`.
+- Never run git from `C:/Users/BTCOM` (home) — stray `git init` there surfaces unrelated files. If you see foreign files in `git status`, stop — wrong folder.
+- Only commit when the user explicitly asks.
+
+---
+
+## Ignore (not the product)
+
+Do not edit, build, or treat as source of truth:
+
+- `example_copy/`, `example_project/`, `test/`, `Ptest/`, `temp/`
+
+Only folders that matter: `client/`, `server/`, `graphify-out/`, and root roadmap/docs.
+
+---
+
+## Knowledge graph — use before blind grepping
+
+`graphify-out/` is a prebuilt codebase graph (1231 nodes, 97 communities; may lag recent Tier 1–3 files — rebuild scheduled at launch). **Do not load the whole folder** — query it:
+
+```bash
+graphify query "how does the AI feedback flow work end to end"
+graphify query "what calls the chat controller"
+graphify path "QuestionChoiceView" "chat.controller.ts"
+graphify explain "questionAgentContext"
+```
+
+Community map: @graphify-out/GRAPH_REPORT.md  
+Visual explore: `graphify-out/graph.html`  
+Rebuild only after large structural changes: `graphify <path> --update`
+
+**Workflow:** graphify query → open located files → read the matching `CLAUDE.md` → edit.
+
+---
+
+## Common commands
+
+Always `cd` into the half you're working on first.
+
+```bash
+# Server — http://localhost:5000
+cd server && npm install && npm run dev
+cd server && npm test                  # vitest, in-memory Mongo, mocked Gemini
+cd server && npm run test:ai           # live Gemini (RUN_AI_TESTS=true + key)
+
+# Client — http://localhost:5173
+cd client && npm install && npm run dev
+cd client && npm test
+cd client && npm run lint
+```
+
+**Definition of done:** phase tests written and passing; `npm test` green in every half touched; relevant `CLAUDE.md` updated. Manual smoke: both halves running, test lesson at `/view/69e39d0b60d467bd515a4945`, logged-in **and** incognito.
+
+---
+
+## Agent tooling — Playwright MCP
+
+`.cursor/mcp.json` registers the **playwright** MCP server (`npx @playwright/mcp@latest`) — real browser automation (`browser_*` tools: navigate, snapshot, click, screenshot) for driving the `client/` app. **Restart Cursor** after first setup so the tools load. To test the client: `cd client && npm run dev` (Vite :5173), then ask the agent to navigate there and `browser_snapshot` the page.
+
+Claude Code has the same server user-scoped, plus the `frontend-design` design plugin — see @AGENT.md §7.
+
+---
+
+## Where important things live
+
+| Topic | Location |
+| --- | --- |
+| AI prompts & Gemini | `server/src/services/tutor/` + `server/src/controllers/tutor.controller.ts` (only AI endpoint: `POST /api/chat/tutor`) |
+| Auth (JWT, guards) | `server/src/middlewares/auth.middleware.ts` |
+| Data model (source of truth) | `server/src/models/*.model.ts` — ignore stale `schema.md` |
+| API routes | `server/src/routes/*.routes.ts` + `server/CLAUDE.md` |
+| Lesson editor (TipTap + Fabric) | `client/src/components/editor/` + `client/src/components/README.md` |
+| Question/AI blocks | `client/src/components/editor/extensions/Question*` |
+| Client → AI calls | `client/src/components/editor/extensions/tutorApi.ts` (`callTutor` / `callTutorStream`) |
+| Client routing | `client/src/App.tsx` + `client/CLAUDE.md` |
+| Global client state | `client/src/stores/*.store.ts` |
+
+---
+
+## Conventions
+
+- TypeScript everywhere; match the style of the file you're editing.
+- AI output language is Thai by default (`AI_OUTPUT_LANGUAGE` server-side). UI copy is mixed English/Thai.
+- Secrets in `.env` (git-ignored) per half — never commit or print values.
+- Server cold-starts on Render free tier; account for latency in UX, don't assume the server is down.
+- Prefer prose and tables over ASCII diagrams in docs.
+- When you add or change a non-obvious mechanism, leave a short note in the relevant `CLAUDE.md`.
